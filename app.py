@@ -43,8 +43,7 @@ def setup_admin(user_service):
     if not user_service.is_default_admin_exists():
         user_service.sign_up('admin', 'password', 'Admin',
                              None, 'admin@blog.com', True)
-        app.logger.info("Admin Added: ",
-                        user_service.is_default_admin_exists())
+        app.logger.info("Admin Added")
 
 
 @app.route('/')
