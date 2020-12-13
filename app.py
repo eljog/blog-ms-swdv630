@@ -1,28 +1,34 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from services import blog_service, user_service
-# from models import create_tables
-from sqlalchemy.pool import StaticPool
-
-from database import db_session, init_db
-
-from flask import Flask, render_template, request, redirect, session, abort
-from flask_bootstrap import Bootstrap
-from flask.json import jsonify
-from models import Admin, User
-from flask.helpers import url_for
 import os
 
+from flask import Flask, abort, redirect, render_template, request, session
+from flask.helpers import url_for
+from flask.json import jsonify
+from flask_bootstrap import Bootstrap
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from database import db_session, init_db
+from models import Admin, User
+from services import blog_service, user_service
+import logging
+
 app = Flask(__name__)
-# Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = os.environ.get("SECRET_KEY")
 Bootstrap(app)
 
-# Set it to http://localhost:5000 when debugging locally
-host_url = "https://572c3505-1461-4ff4-a654-d388c87137db-5000.apps.codespaces.githubusercontent.com"
+logging.basicConfig(level=logging.DEBUG)
+
+host_url = "http://localhost:5000"
+if os.environ.get("CODESPACES") == "true":
+    host_url = "https://{}-5000.apps.codespaces.githubusercontent.com".format(
+        os.environ.get("CLOUDENV_ENVIRONMENT_ID"))
 
 
 class UserMeta:
+    '''
+    Class that holds minimal user identifiable info in the session context
+    '''
+
     def __init__(self, id, display_name, type):
         self.id = id
         self.display_name = display_name
@@ -30,17 +36,25 @@ class UserMeta:
 
 
 def setup_admin(user_service):
+    '''
+    Create admin user when the app is launched for the first time
+    '''
+
     if not user_service.is_default_admin_exists():
         user_service.sign_up('admin', 'password', 'Admin',
                              None, 'admin@blog.com', True)
-        print("Admin Added: ", user_service.is_default_admin_exists())
-        users = user_service.fetch_all_users()
-        print(len(users))
+        app.logger.info("Admin Added: ",
+                        user_service.is_default_admin_exists())
 
 
 @app.route('/')
 @app.route('/index/')
 def index():
+    '''
+    Route for home page that also renders list of blog posts
+    Administrators can also see unpublished posts
+    '''
+
     is_admin = False
 
     if is_loggedin():
@@ -54,6 +68,10 @@ def index():
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
+    '''
+    Route for login page and for submitting login form
+    '''
+
     if not is_loggedin():
         if request.method == 'POST':
             username = request.form['username']
@@ -72,6 +90,10 @@ def login():
 
 @app.route('/logout/')
 def logout():
+    '''
+    Logout end point
+    '''
+
     if is_loggedin():
         session.pop('user')
     return redirect(host_url + "/index/", code=303)
@@ -79,6 +101,10 @@ def logout():
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
+    '''
+    Route for registration page and for submitting registration form
+    '''
+
     if not is_loggedin():
         if request.method == 'POST':
             username = request.form['username']
@@ -100,6 +126,12 @@ def register():
 @app.route('/posts/', methods=['GET', 'POST'])
 @app.route('/posts/<int:id>', methods=['GET', 'POST'])
 def add_view_post(id=None):
+    '''
+    Route for "add post" page and for submitting "add post" form for admins
+    Also for viewing a blog post by id - for all users
+    Administrators can view unpublished posts
+    '''
+
     is_admin = False
 
     if is_loggedin():
@@ -140,6 +172,10 @@ def add_view_post(id=None):
 
 @app.route('/editpost/<int:id>/', methods=['GET', 'POST'])
 def edit_post(id):
+    '''
+    Route for "edit post" page and for submitting "edit post" form, for admins
+    '''
+
     is_admin = False
 
     if is_loggedin():
@@ -182,6 +218,10 @@ def edit_post(id):
 
 @app.route('/posts/<int:post_id>/comments/', methods=['POST'])
 def add_post_comment(post_id):
+    '''
+    Route for adding comments to the blog posts - for registered users
+    '''
+
     if request.method == 'POST':
         if is_loggedin():
             user = get_current_user()
@@ -197,6 +237,10 @@ def add_post_comment(post_id):
 
 @app.route('/deletepost/<int:id>/', methods=['GET'])
 def delete_post_comment(id):
+    '''
+    Route for deleting a blog post - for admins
+    '''
+
     if request.method == 'GET':
         is_admin = False
 
@@ -214,10 +258,18 @@ def delete_post_comment(id):
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
+    '''
+    Handler for disposing database sessions after each request lifecycle
+    '''
+
     db_session.remove()
 
 
 def get_current_user():
+    '''
+    Get the currently logged in user
+    '''
+
     if is_loggedin():
         try:
             return user_service.fetch_user_by_id(session['user']['id'])
@@ -228,11 +280,14 @@ def get_current_user():
 
 
 def is_loggedin():
+    '''
+    Check if the request is made by a logged in user
+    '''
+
     return 'user' in session
 
 
 if __name__ == '__main__':
-    # startup()
     init_db()
 
     setup_admin(user_service)
