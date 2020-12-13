@@ -18,6 +18,12 @@ pip install sqlchemy
 pip install flask-bootstrap
 ```
 
+- Run app
+
+Set an environment variable `SECRET_KEY` with a unique secret value.
+
+Run `python app.py` or `flask run`
+
 # Application UI
 
 ### Home page
