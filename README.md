@@ -5,7 +5,7 @@ Python Blogging System Project as part of MS SWDV630 course
 - Install Latest python, Flask, SQL Alchemy and Flask Bootstrap
 ```
 pip install flask
-pip install sqlchemy
+pip install sqlalchemy
 pip install flask-bootstrap
 ```
 
