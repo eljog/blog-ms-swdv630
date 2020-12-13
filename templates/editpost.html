@@ -4,11 +4,10 @@
 {% endblock %}
 {% block content %}
 <div class="container-fluid">
-  <h2>Blogging System</h2>
   {% block messages %}
   {{ super() }}
   {% endblock %}
-  <p>Welcome to the online blogging system. Hope you enjoy reading.</p>
+  <h3>Edit Post.</h3>
   <form method="POST">
     <div class="form-group">
       <label for="is_visible">Is Visible</label>
@@ -30,5 +29,8 @@
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
   </form>
+  {% block footer %}
+  {{ super() }}
+  {% endblock %}
 </div>
 {% endblock %}

@@ -8,7 +8,8 @@
     {{ super() }}
     {% endblock %}
     <h1>{{ post.title }}</h1>
-    <h4>Author: {{ post.author.display_name }} Published: {{ post.post_date }}</h4>
+    <h4>Author: {{ post.author.display_name }}</h4>
+    <h4>Published: {{ post.post_date }}</h4>
     <p style="white-space: pre-wrap;">{{ post.content|safe }}</p>
     <hr />
     <h3>Comments</h3>
@@ -33,5 +34,8 @@
     {% else %}
     <p>No comments to view.</p>
     {% endif %}
+    {% block footer %}
+    {{ super() }}
+    {% endblock %}
 </div>
 {% endblock %}

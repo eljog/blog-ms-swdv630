@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
 <div class="container-fluid">
-    <h2>Blogging System</h2>
+    <h3>Blogging System</h3>
     {% block messages %}
     {{ super() }}
     {% endblock %}
@@ -12,16 +12,15 @@
     <ul class="list-group">
         {% for post in posts %}
         <li class="list-group-item">
-            <!-- <a href="/posts/{{ post.id }}">{{ post.title }}</a> -->
             <div class="media">
                 <div class="media-left">
                     <a href="/posts/{{ post.id }}">
-                        <img class="media-object" src="https://picsum.photos/64" alt="...">
+                        <img class="media-object" src="https://picsum.photos/{{ (post.id % 7) + 60  }}" alt="...">
                     </a>
                 </div>
                 <div class="media-body">
                     <h4 class="media-heading"><a href="/posts/{{ post.id }}">{{ post.title }}</a></h4>
-                    <p style="width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         {{ post.content }}
                     </p>
 
@@ -30,5 +29,8 @@
         </li>
         {% endfor %}
     </ul>
+    {% block footer %}
+    {{ super() }}
+    {% endblock %}
 </div>
 {% endblock %}
