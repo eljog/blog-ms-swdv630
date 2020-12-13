@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block navbar %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <h2>Blogging System</h2>
+  {% block messages %}
+  {{ super() }}
+  {% endblock %}
+  <p>Welcome to the online blogging system. Hope you enjoy reading.</p>
+  <form method="POST">
+    <div class="form-group">
+      <label for="is_visible">Is Visible</label>
+      {% if post.is_visible %}
+      <input type="checkbox" id="is_visible" name="is_visible" checked>
+      {% else %}
+      <input type="checkbox" id="is_visible" name="is_visible">
+      {% endif %}
+    </div>
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" class="form-control" id="title" name="title" placeholder="Post Title" maxlength="200"
+        value="{{ post.title }}" required>
+    </div>
+    <div class="form-group">
+      <label for="content">Content</label>
+      <textarea class="form-control" id="content" name="content" rows="20"
+        maxlength="20000">{{ post.content }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+</div>
+{% endblock %}
